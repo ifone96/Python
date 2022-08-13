@@ -10,7 +10,7 @@ import xlsxwriter
 import uuid
 import pyodbc 
 
-data_file_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\"
+data_file_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL"
 
 df = []
 for file in os.listdir(data_file_folder):
@@ -24,14 +24,14 @@ for file in os.listdir(data_file_folder):
 # Len(df)
 df_combine = pd.concat(df, axis=0)
 #df_combine2 = df_combine.iloc[:,[0,1,7,11]]
-#Pick up column with headernamer
 
-df_combine2 = df_combine[['bill_id']].astype('string')
-df_combine3 = df_combine2.assign(debt_id_text = "=XLOOKUP($A2,'SQL MAP'!$A:$A,'SQL MAP'!B:B)",
-                                phone = "=XLOOKUP($A2,'SQL MAP'!$A:$A,'SQL MAP'!C:C)",
-                                type = "=XLOOKUP($A2,'SQL MAP'!$A:$A,'SQL MAP'!D:D)",
-                                name = "=XLOOKUP($A2,'SQL MAP'!$A:$A,'SQL MAP'!E:E)",
-                                idnumber = "=XLOOKUP($A2,'SQL MAP'!$A:$A,'SQL MAP'!F:F)") 
+#Pick up column with headernamer
+df_combine = df_combine[['bill_id']].astype('string') #=XLOOKUP($A2,'SQL MAP'!$A:$A,'SQL MAP'!B:B)
+df_combine = df_combine.assign(uuid = "", 
+                    phone = "",
+                    type = "",
+                    name = "",
+                    idnumber = "") 
 
 # server = 'localhost\sqlexpress' # for a named instance
 # server = 'myserver,port' # to specify an alternate port
@@ -39,10 +39,10 @@ server = 'collectiusdwhph.database.windows.net'
 database = 'dwh_th_2022' 
 username = 'atiwat' 
 password = '2a#$dfERat^%' 
-cnxn = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
+connect_database = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
 sql_cmd = """
     SELECT DISTINCT
-    b.alternis_invoicenumber,
+    b.alternis_invoicenumber as bill_id, 
     b.alternis_accountid as uuid,
     REPLACE(a.alternis_number,'*','') AS phone,
     a.alternis_phonetypename as type,
@@ -54,39 +54,67 @@ sql_cmd = """
     WHERE alternis_portfolioidname IN ('SEAMONEY SPL SVC TH','SEAMONEY BCL SVC TH')
     ORDER BY a.alternis_contactidname
     """
-df_sql = pd.read_sql(sql_cmd, cnxn)
+df_sql = pd.read_sql(sql_cmd, connect_database)
+
+#xlookup python pandas
+def xlookup(lookup_value, lookup_array, return_array, if_not_found:str = ''):
+    match_value = return_array.loc[lookup_array == lookup_value]
+    if match_value.empty:
+        #return f'"{lookup_value}" is NULL' if if_not_found == '' else if_not_found
+        return f'NULL' if if_not_found == '' else if_not_found
+
+    else:
+        return match_value.tolist()[0]
+
+#xlookup_data = xlookup('1625976231738529792', df_sql['bill_id'],df_sql['uuid'])
+df_combine['uuid'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['uuid']))
+df_combine['phone'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['phone']))
+df_combine['type'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['type']))
+df_combine['name'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['name']))
+df_combine['idnumber'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['idnumber']))
+
+#delete some u don't need
+del df_combine['bill_id']
+
+#Join table
+#join_data = pd.merge(df_combine, df_sql, on ='bill_id', how ='outer')
+#join_data.drop('bill_id', inplace=True, axis=1)
 
 #Set name file with date/times
-todays_date_name = str(datetime.datetime.now().strftime("SMN %H%M") )+ '.xlsx'
-writer = pd.ExcelWriter(todays_date_name)
+todaysdate_filename = str(datetime.datetime.now().strftime("SMN %H%M") )+ '.xlsx'
+writer = pd.ExcelWriter(todaysdate_filename)
 
-df_combine3.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name= 'SMN')
-df_sql.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name= 'SQL MAP')
+df_combine.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name='Output')
+#join_data.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name='test')
+df_sql.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name='SQL MAP')
 
 # Get the xlsxwriter workbook and worksheet objects.
 workbook  = writer.book
-worksheet = writer.sheets['SMN']
+worksheet = writer.sheets['Output']
 worksheet2 = writer.sheets['SQL MAP']
+
 
 # Add some cell formats.
 format1 = workbook.add_format({'num_format': '@'})
 format2 = workbook.add_format({'num_format': '0000000000'})
-
+header_format = workbook.add_format({'bold': True})
 
 # Set the column width and format.
-worksheet.set_column('A:A', 25)
-worksheet.set_column('B:B', 40)
-worksheet.set_column('C:C', 16 ,format2)
-worksheet.set_column('D:D', 10)
-worksheet.set_column('E:E', 16)
-worksheet.set_column('F:F', 22)
-worksheet2.set_column('A:A', 25, format1)
-worksheet2.set_column('B:B', 40, format1)
-worksheet2.set_column('C:C', 13, format2)
-worksheet2.set_column('D:D', 22, format1)
-worksheet2.set_column('E:E', 20, format1)
-worksheet2.set_column('F:F', 22, format1)
+worksheet.set_row(0, None, header_format)
+worksheet.set_column('A:A', 40)
+worksheet.set_column('B:B', 16)
+worksheet.set_column('C:C', 20)
+worksheet.set_column('D:D', 30)
+worksheet.set_column('E:E', 25)
+worksheet.set_column('F:F', 25)
 
+worksheet2.set_row(0, None, header_format)
+worksheet2.set_column('A:A', 25)
+worksheet2.set_column('B:B', 40)
+worksheet2.set_column('C:C', 16)
+worksheet2.set_column('D:D', 20)
+worksheet2.set_column('E:E', 30)
+worksheet2.set_column('F:F', 25)
 
 # Close the Pandas Excel writer and output the Excel file.
 writer.save()
