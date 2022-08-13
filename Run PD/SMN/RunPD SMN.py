@@ -56,7 +56,7 @@ sql_cmd = """
     """
 df_sql = pd.read_sql(sql_cmd, connect_database)
 
-#xlookup python pandas
+#f(x) xlookup python pandas
 def xlookup(lookup_value, lookup_array, return_array, if_not_found:str = ''):
     match_value = return_array.loc[lookup_array == lookup_value]
     if match_value.empty:
