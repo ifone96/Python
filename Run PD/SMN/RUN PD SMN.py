@@ -20,32 +20,36 @@ df = []
 for file in os.listdir(data_file_folder):
     if file.endswith('.xlsb'):
         print('Loading file Name: {0}'.format(file))
-        df.append(pd.read_excel(os.path.join(data_file_folder, file), engine='pyxlsb',sheet_name='Sheet1'))
+        df.append(pd.read_excel(os.path.join(data_file_folder, file),
+                  engine='pyxlsb', sheet_name='Sheet1'))
     if file.endswith('.xlsx'):
         print('Loading file Name: {0}'.format(file))
-        df.append(pd.read_excel(os.path.join(data_file_folder, file), sheet_name='Sheet1'))
-      
-dst_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\Uploaded\\" + file        
+        df.append(pd.read_excel(os.path.join(
+            data_file_folder, file), sheet_name='Sheet1'))
+
+dst_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\Uploaded\\" + file
 # Len(df)
 len(df)
-df_combine = pd.concat(df,axis='index')
+df_combine = pd.concat(df, axis='index')
 #df_combine2 = df_combine.iloc[:,[0,1,7,11]]
 
-#Pick up column with headername
-df_combine = df_combine[['bill_id']].astype('string') #=XLOOKUP($A2,'SQL MAP'!$A:$A,'SQL MAP'!B:B)
+# Pick up column with headername
+# =XLOOKUP($A2,'SQL MAP'!$A:$A,'SQL MAP'!B:B)
+df_combine = df_combine[['bill_id']].astype('string')
 #df_combine = df_combine.drop_duplicates()
-df_combine = df_combine.assign(uuid = "", 
-                    phone = "",
-                    type = "",
-                    name = "",
-                    idnumber = "") 
+df_combine = df_combine.assign(uuid="",
+                               phone="",
+                               type="",
+                               name="",
+                               idnumber="")
 # server = 'localhost\sqlexpress' # for a named instance
 # server = 'myserver,port' # to specify an alternate port
-server = 'collectiusdwhph.database.windows.net' 
-database = 'dwh_th_2022' 
-username = 'atiwat' 
-password = '2a#$dfERat^%' 
-connect_database = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+ password)
+server = 'collectiusdwhph.database.windows.net'
+database = 'dwh_th_2022'
+username = 'atiwat'
+password = '2a#$dfERat^%'
+connect_database = pyodbc.connect(
+    'DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD=' + password)
 sql_cmd = """
     SELECT DISTINCT
     b.alternis_invoicenumber as bill_id, 
@@ -63,40 +67,48 @@ sql_cmd = """
 df_sql = pd.read_sql(sql_cmd, connect_database)
 
 
-#f(x) xlookup python pandas
-def xlookup(lookup_value, lookup_array, return_array, if_not_found:str = ''):
+# f(x) xlookup python pandas
+def xlookup(lookup_value, lookup_array, return_array, if_not_found: str = ''):
     match_value = return_array.loc[lookup_array == lookup_value]
     if match_value.empty:
-        #return f'"{lookup_value}" is NULL' if if_not_found == '' else if_not_found
+        # return f'"{lookup_value}" is NULL' if if_not_found == '' else if_not_found
         return f'NULL' if if_not_found == '' else if_not_found
 
     else:
         return match_value.tolist()[0]
 
-#xlookup_data = xlookup('1625976231738529792', df_sql['bill_id'],df_sql['uuid'])
-df_combine['uuid'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['uuid']))
-df_combine['phone'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['phone']))
-df_combine['type'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['type']))
-df_combine['name'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['name']))
-df_combine['idnumber'] = df_combine['bill_id'].apply(xlookup, args = (df_sql['bill_id'], df_sql['idnumber']))
 
-#delete some u don't need
+#xlookup_data = xlookup('1625976231738529792', df_sql['bill_id'],df_sql['uuid'])
+df_combine['uuid'] = df_combine['bill_id'].apply(
+    xlookup, args=(df_sql['bill_id'], df_sql['uuid']))
+df_combine['phone'] = df_combine['bill_id'].apply(
+    xlookup, args=(df_sql['bill_id'], df_sql['phone']))
+df_combine['type'] = df_combine['bill_id'].apply(
+    xlookup, args=(df_sql['bill_id'], df_sql['type']))
+df_combine['name'] = df_combine['bill_id'].apply(
+    xlookup, args=(df_sql['bill_id'], df_sql['name']))
+df_combine['idnumber'] = df_combine['bill_id'].apply(
+    xlookup, args=(df_sql['bill_id'], df_sql['idnumber']))
+
+# delete some u don't need
 del df_combine['bill_id']
 
-#Join table
+# Join table
 #join_data = pd.merge(df_combine, df_sql, on ='bill_id', how ='outer')
 #join_data.drop('bill_id', inplace=True, axis=1)
 
-#Set name file with date/times
-todaysdate_filename = str(datetime.datetime.now().strftime("SMN %H%M") )+ '.xlsx'
+# Set name file with date/times
+todaysdate_filename = str(
+    datetime.datetime.now().strftime("SMN %H%M")) + '.xlsx'
 writer = pd.ExcelWriter(todaysdate_filename)
 
-df_combine.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name='Output')
+df_combine.to_excel(writer, index=False,
+                    engine='xlsxwriter', sheet_name='Output')
 #join_data.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name='test')
-df_sql.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name='SQL MAP')
+df_sql.to_excel(writer, index=False, engine='xlsxwriter', sheet_name='SQL MAP')
 
 # Get the xlsxwriter workbook and worksheet objects.
-workbook  = writer.book
+workbook = writer.book
 worksheet = writer.sheets['Output']
 worksheet2 = writer.sheets['SQL MAP']
 
@@ -126,7 +138,7 @@ worksheet2.set_column('F:F', 25)
 # Close the Pandas Excel writer and output the Excel file.
 writer.save()
 
-#Move file on os base name and path
+# Move file on os base name and path
 src_folder = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\"
 dst_folder = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\Uploaded\\"
 # move file whose name end with string 'xls'
@@ -138,12 +150,12 @@ for files in glob.iglob(pattern, recursive=True):
     shutil.move(files, dst_folder + todayy + file_name)
     print('Moved:', files)
 
-#Open file or folder on OS
+# Open file or folder on OS
 path_url = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\"
 path_file = path_url + "\*.xls*"
 for filex in glob.iglob(path_file, recursive=True):
     os.path.realpath(path_url)
-    #FBI OPEN UP!!!!
+    # FBI OPEN UP!!!!
     os.startfile(path_url)
     os.startfile(filex)
     print('Opened File&Folder:', filex)
