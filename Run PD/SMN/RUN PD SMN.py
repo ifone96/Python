@@ -27,8 +27,6 @@ for file in os.listdir(data_file_folder):
         print('Loading file Name: {0}'.format(file))
         df.append(pd.read_excel(os.path.join(
             data_file_folder, file), sheet_name='Sheet1'))
-
-dst_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\Uploaded\\" + file
 # Len(df)
 len(df)
 df_combine = pd.concat(df, axis='index')
@@ -147,12 +145,12 @@ pattern = src_folder + "\*.xls*"
 for files in glob.iglob(pattern, recursive=True):
     # extract file name form file path
     file_name = os.path.basename(files)
-    todayy = str(datetime.datetime.now().strftime("(Uploaded) %H%M "))
-    shutil.move(files, dst_folder + todayy + file_name)
+    #todayy = str(datetime.datetime.now().strftime("(Uploaded) %H%M "))
+    shutil.move(files, dst_folder + file_name)
     print('Moved:', files)
 
 # Open file or folder on OS
-path_url = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\"
+path_url = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN"
 path_file = path_url + "\*.xls*"
 for filex in glob.iglob(path_file, recursive=True):
     os.path.realpath(path_url)
