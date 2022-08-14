@@ -1,18 +1,19 @@
+from ast import If
+import datetime
+import glob
+import os
+import shutil
+import uuid
 from doctest import DocFileTest
 from email.utils import format_datetime
 from math import fabs
 from operator import index
-import os
 from pickle import NONE
-from matplotlib.pyplot import axis
-import pandas as pd
-import datetime
-import xlsxwriter
-import uuid
-import pyodbc
-import shutil
-import glob
 
+import pandas as pd
+import pyodbc
+import xlsxwriter
+from matplotlib.pyplot import axis
 
 data_file_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\"
 
