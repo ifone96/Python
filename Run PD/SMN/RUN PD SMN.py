@@ -97,7 +97,7 @@ del df_combine['bill_id']
 
 # Set name file with date/times
 todaysdate_filename = str(
-    datetime.datetime.now().strftime("SMN %H%M")) + '.xlsx'
+    datetime.datetime.now().strftime("Leads - SMN %H%M")) + '.xlsx'
 writer = pd.ExcelWriter(todaysdate_filename)
 
 df_combine.to_excel(writer, index=False,
