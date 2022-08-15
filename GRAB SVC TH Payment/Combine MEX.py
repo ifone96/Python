@@ -6,7 +6,7 @@ import pandas as pd
 import datetime
 import xlsxwriter
 
-data_file_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\GRAB SVC TH Payment\\DAX\\"
+data_file_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\GRAB SVC TH Payment\\MEX\\"
 
 df = []
 for file in os.listdir(data_file_folder):

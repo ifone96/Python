@@ -61,7 +61,6 @@ sql_cmd = """
     JOIN stage.alternis_account b
     ON a.alternis_contactid = b.alternis_contactid
     WHERE alternis_portfolioidname IN ('SEAMONEY SPL SVC TH','SEAMONEY BCL SVC TH')
-    ORDER BY a.alternis_contactidname
     """
 df_sql = pd.read_sql(sql_cmd, connect_database)
 
