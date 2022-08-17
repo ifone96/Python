@@ -15,7 +15,7 @@ import pyodbc
 import xlsxwriter
 from matplotlib.pyplot import axis
 
-data_file_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\"
+data_file_folder = "Z:\\MIS\\Fone Wasin\\Python\\Run PD\\SMN\\From TL\\"
 
 df = []
 for file in os.listdir(data_file_folder):
@@ -137,8 +137,8 @@ worksheet2.set_column('F:F', 25)
 writer.save()
 
 # Move file on os base name and path
-src_folder = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\"
-dst_folder = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\Uploaded\\"
+src_folder = r"Z:\\MIS\\Fone Wasin\\Python\\Run PD\\SMN\\From TL\\"
+dst_folder = r"Z:\\MIS\\Fone Wasin\\Python\\Run PD\\SMN\\From TL\\Uploaded\\"
 # move file whose name end with string 'xls'
 pattern = src_folder + "\*.xls*"
 for files in glob.iglob(pattern, recursive=True):
@@ -149,7 +149,7 @@ for files in glob.iglob(pattern, recursive=True):
     print('Moved:', files)
 
 # Open file or folder on OS
-path_url = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN"
+path_url = r"Z:\\MIS\\Fone Wasin\\Python\\Run PD\\SMN"
 path_file = path_url + "\*.xls*"
 for filex in glob.iglob(path_file, recursive=True):
     os.path.realpath(path_url)
