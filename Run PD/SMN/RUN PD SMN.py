@@ -101,14 +101,14 @@ todaysdate_filename = str(
 writer = pd.ExcelWriter(todaysdate_filename)
 
 df_combine.to_excel(writer, index=False,
-                    engine='xlsxwriter', sheet_name='Output')
+                    engine='xlsxwriter', sheet_name='SMN_PD')
+df_sql.to_excel(writer, index=False, engine='xlsxwriter', sheet_name='SQL_MAP')
 #join_data.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name='test')
-df_sql.to_excel(writer, index=False, engine='xlsxwriter', sheet_name='SQL MAP')
 
 # Get the xlsxwriter workbook and worksheet objects.
 workbook = writer.book
-worksheet = writer.sheets['Output']
-worksheet2 = writer.sheets['SQL MAP']
+worksheet = writer.sheets['SMN_PD']
+worksheet2 = writer.sheets['SQL_MAP']
 
 
 # Add some cell formats.
