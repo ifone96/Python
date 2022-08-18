@@ -35,7 +35,7 @@ df_combine = df_combine.assign(debt_id_text="",
                                Amount="",
                                Amount_Amount_in_LCY="",
                                Effective_transaction_date="",
-                               Transaction_Date_Posting=""
+                               Transaction_Date_Posting="=TODAY()"
                                )
 
 # server = 'localhost\sqlexpress' # for a named instance
@@ -70,6 +70,7 @@ worksheet2 = writer.sheets['SQL_MAP']
 # Add some cell formats.
 format1 = workbook.add_format({'num_format': '@'})
 format2 = workbook.add_format({'num_format': '0.00'})
+format3 = workbook.add_format({'num_format': 'mm/dd/yyyy'})
 
 # Set the column width and format.
 worksheet.set_column('A:A', 12, format1)
@@ -81,11 +82,22 @@ worksheet.set_column('F:F', 10)
 worksheet.set_column('G:G', 18)
 worksheet.set_column('H:H', 18)
 worksheet.set_column('I:I', 14)
-worksheet.set_column('J:J', 12)
-worksheet.set_column('K:K', 26)
-worksheet.set_column('L:L', 28)
-worksheet.set_column('M:M', 26)
+worksheet.set_column('J:J', 12, format2)
+worksheet.set_column('K:K', 26, format2)
+worksheet.set_column('L:L', 28, format3)
+worksheet.set_column('M:M', 26, format3)
 worksheet2.set_column('A:A', 25)
+
+#Formula 
+worksheet.write_dynamic_array_formula('E2:E100', '=B2:B100&""')
+worksheet.write_dynamic_array_formula('F2:F100', '=SUBSTITUTE(D2:D100,RIGHT(D2:D100,4),"")&""')
+worksheet.write_dynamic_array_formula('G2:G100', '=_xlfn.IFNA(_xlfn.XLOOKUP(F2:F100,SQL_MAP!$A:A,SQL_MAP!$A:$A),_xlfn.XLOOKUP(E2:E100,SQL_MAP!$A:$A,SQL_MAP!$A:$A))')
+worksheet.write_dynamic_array_formula('H2:H100', '=G2:G100')
+worksheet.write_dynamic_array_formula('J2:J100', '=C2:C100*1')
+worksheet.write_dynamic_array_formula('K2:K100', '=C2:C100*1')
+worksheet.write_dynamic_array_formula('L2:L100', '=_xlfn.DATE(_xlfn.RIGHT(A2:A100,4),_xlfn.MID(A2:A100,4,2),_xlfn.LEFT(A2:A100,2))')
+
+
 
 # Close the Pandas Excel writer and output the Excel file.
 writer.save()
@@ -108,6 +120,6 @@ path_file = path_url + "\*.xls*"
 for filex in glob.iglob(path_file, recursive=True):
     os.path.realpath(path_url)
     # FBI OPEN UP!!!!
-    os.startfile(path_url)
+   #os.startfile(path_url)
     os.startfile(filex)
     print('Opened File&Folder:', filex)
