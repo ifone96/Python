@@ -15,7 +15,7 @@ import pyodbc
 import xlsxwriter
 from matplotlib.pyplot import axis
 
-data_file_folder = "C:\\Users\\wasin.k\\Desktop\\Python\\GRAB SVC TH Payment\\DAX\\"
+data_file_folder = "Z:\\MIS\\Fone Wasin\\Python\\GRAB SVC TH Payment\\DAX\\"
 
 df = []
 for file in os.listdir(data_file_folder):
@@ -56,16 +56,16 @@ df_sql = pd.read_sql(sql_cmd, connect_database)
 
 
 todaysdate_filename = str(
-    datetime.datetime.now().strftime("Combine DAX %H%M")) + '.xlsx'
+    datetime.datetime.now().strftime("Combine DAX %H%M %y%m%d")) + '.xlsx'
 writer = pd.ExcelWriter(todaysdate_filename)
 print("\n",df_combine, f"{todaysdate_filename }""\n")
 
-df_combine.to_excel(writer, index=False, sheet_name= 'Combine DAX')
-df_sql.to_excel(writer, index=False, engine='xlsxwriter', sheet_name='SQL MAP')
+df_combine.to_excel(writer, index=False, sheet_name= 'Combine_DAX')
+df_sql.to_excel(writer, index=False, engine='xlsxwriter', sheet_name='SQL_MAP')
 # Get the xlsxwriter workbook and worksheet objects.
 workbook  = writer.book
-worksheet = writer.sheets['Combine DAX']
-worksheet2 = writer.sheets['SQL MAP']
+worksheet = writer.sheets['Combine_DAX']
+worksheet2 = writer.sheets['SQL_MAP']
 
 # Add some cell formats.
 format1 = workbook.add_format({'num_format': '@'})
@@ -103,7 +103,7 @@ writer.save()
 #    print('Moved:', files)
 
 # Open file or folder on OS
-path_url = r"C:\\Users\\wasin.k\\Desktop\\Python\\GRAB SVC TH Payment\\"
+path_url = r"Z:\\MIS\\Fone Wasin\\Python\\GRAB SVC TH Payment\\"
 path_file = path_url + "\*.xls*"
 for filex in glob.iglob(path_file, recursive=True):
     os.path.realpath(path_url)
