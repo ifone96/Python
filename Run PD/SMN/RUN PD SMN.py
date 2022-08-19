@@ -14,41 +14,46 @@ import pandas as pd
 import pyodbc
 import xlsxwriter
 from matplotlib.pyplot import axis
+import time
+
+start = time.time()
+print("Start: "+ str(start))
+
 
 data_file_folder = "Z:\\MIS\\Fone Wasin\\Python\\Run PD\\SMN\\From TL\\"
-
 df = []
 for file in os.listdir(data_file_folder):
     if file.endswith('.xlsb'):
-        print('Loading file Name: {0}'.format(file))
-        df.append(pd.read_excel(os.path.join(data_file_folder, file),
-                  engine='pyxlsb', sheet_name='Sheet1'))
+        print('Loading file name: {0}'.format(file))
+        df.append(pd.read_excel(os.path.join(data_file_folder, file), engine='pyxlsb', sheet_name='Sheet1'))
     if file.endswith('.xlsx'):
-        print('Loading file Name: {0}'.format(file))
-        df.append(pd.read_excel(os.path.join(
-            data_file_folder, file), sheet_name='Sheet1'))
-# Len(df)
-len(df)
+        print('Loading file name: {0}'.format(file))
+        df.append(pd.read_excel(os.path.join(data_file_folder, file), sheet_name='Sheet1'))
+        
+#combine
 df_combine = pd.concat(df, axis='index')
-#df_combine2 = df_combine.iloc[:,[0,1,7,11]]
-
 # Pick up column with headername
-# =XLOOKUP($A2,'SQL MAP'!$A:$A,'SQL MAP'!B:B)
 df_combine = df_combine[['bill_id']].astype('string')
+print('Getting values: bill_id')
 #df_combine = df_combine.drop_duplicates()
 df_combine = df_combine.assign(uuid="",
                                phone="",
                                type="",
                                name="",
                                idnumber="")
+print('Assign values: uuid phone type name idnumber')
+
 # server = 'localhost\sqlexpress' # for a named instance
 # server = 'myserver,port' # to specify an alternate port
 server = 'collectiusdwhph.database.windows.net'
 database = 'dwh_th_2022'
 username = 'atiwat'
 password = '2a#$dfERat^%'
+print('Connecting database: '+ server + '...')
 connect_database = pyodbc.connect(
     'DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD=' + password)
+querying_s = time.time()
+print('SQL querying...'+ str(querying_s))
 sql_cmd = """
     SELECT DISTINCT
     b.alternis_invoicenumber as bill_id, 
@@ -63,7 +68,9 @@ sql_cmd = """
     WHERE alternis_portfolioidname IN ('SEAMONEY SPL SVC TH','SEAMONEY BCL SVC TH')
     """
 df_sql = pd.read_sql(sql_cmd, connect_database)
-
+querying_e = time.time()
+querying_x = querying_e - querying_s
+print('SQL query done...'+ str(querying_x))
 
 # f(x) xlookup python pandas
 def xlookup(lookup_value, lookup_array, return_array, if_not_found: str = ''):
@@ -71,11 +78,8 @@ def xlookup(lookup_value, lookup_array, return_array, if_not_found: str = ''):
     if match_value.empty:
         # return f'"{lookup_value}" is NULL' if if_not_found == '' else if_not_found
         return f'NULL' if if_not_found == '' else if_not_found
-
     else:
         return match_value.tolist()[0]
-
-
 #xlookup_data = xlookup('1625976231738529792', df_sql['bill_id'],df_sql['uuid'])
 df_combine['uuid'] = df_combine['bill_id'].apply(
     xlookup, args=(df_sql['bill_id'], df_sql['uuid']))
@@ -87,33 +91,32 @@ df_combine['name'] = df_combine['bill_id'].apply(
     xlookup, args=(df_sql['bill_id'], df_sql['name']))
 df_combine['idnumber'] = df_combine['bill_id'].apply(
     xlookup, args=(df_sql['bill_id'], df_sql['idnumber']))
+print('Mapping with XLOOKUP method...')
 
 # delete some u don't need
 del df_combine['bill_id']
-
-# Join table
-#join_data = pd.merge(df_combine, df_sql, on ='bill_id', how ='outer')
-#join_data.drop('bill_id', inplace=True, axis=1)
+print('Deleted: bill_id')
+#del df_sql['bill_id']
 
 # Set name file with date/times
 todaysdate_filename = str(
     datetime.datetime.now().strftime("Leads - SMN %H%M")) + '.xlsx'
 writer = pd.ExcelWriter(todaysdate_filename)
+print('Created file name: ' + todaysdate_filename)
 
-df_combine.to_excel(writer, index=False,
-                    engine='xlsxwriter', sheet_name='SMN_PD')
-df_sql.to_excel(writer, index=False, engine='xlsxwriter', sheet_name='SQL_MAP')
-#join_data.to_excel(writer, index=False, engine='xlsxwriter' ,sheet_name='test')
+#Write file bill_id
+df_combine.to_excel(writer, index=False, engine='xlsxwriter', sheet_name='SMN_PD')
+print('Created Sheet name: SMN_PD')
+#Write File SQL First
+#df_sql.to_excel(writer, index=False, sheet_name='SQL_MAP')
+#print('Created Sheet name: SQL_MAP' + '\n''by Python ')
 
 # Get the xlsxwriter workbook and worksheet objects.
 workbook = writer.book
 worksheet = writer.sheets['SMN_PD']
-worksheet2 = writer.sheets['SQL_MAP']
-
+#worksheet2 = writer.sheets['SQL_MAP']
 
 # Add some cell formats.
-format1 = workbook.add_format({'num_format': '@'})
-format2 = workbook.add_format({'num_format': '0000000000'})
 header_format = workbook.add_format({'bold': True})
 
 # Set the column width and format.
@@ -125,16 +128,17 @@ worksheet.set_column('D:D', 30)
 worksheet.set_column('E:E', 25)
 worksheet.set_column('F:F', 25)
 
-worksheet2.set_row(0, None, header_format)
-worksheet2.set_column('A:A', 25)
-worksheet2.set_column('B:B', 40)
-worksheet2.set_column('C:C', 16)
-worksheet2.set_column('D:D', 20)
-worksheet2.set_column('E:E', 30)
-worksheet2.set_column('F:F', 25)
+#orksheet2.set_row(0, None, header_format)
+#orksheet2.set_column('A:A', 25)
+#orksheet2.set_column('B:B', 40)
+#orksheet2.set_column('C:C', 16)
+#orksheet2.set_column('D:D', 20)
+#orksheet2.set_column('E:E', 30)
+#orksheet2.set_column('F:F', 25)
 
 # Close the Pandas Excel writer and output the Excel file.
 writer.save()
+print('Execute code with python is done!')
 
 # Move file on os base name and path
 src_folder = r"Z:\\MIS\\Fone Wasin\\Python\\Run PD\\SMN\\From TL\\"
@@ -157,3 +161,8 @@ for filex in glob.iglob(path_file, recursive=True):
     os.startfile(path_url)
     os.startfile(filex)
     print('Opened File&Folder:', filex)
+    
+end = time.time()
+xxx = end-start
+print("End: "+ str(xxx))
+
