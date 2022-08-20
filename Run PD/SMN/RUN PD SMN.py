@@ -72,6 +72,7 @@ querying_e = time.time()
 querying_x = querying_e - querying_s
 print('SQL query done...'+ str(querying_x))
 
+print('Waiting for Mapping with XLOOKUP method...')
 # f(x) xlookup python pandas
 def xlookup(lookup_value, lookup_array, return_array, if_not_found: str = ''):
     match_value = return_array.loc[lookup_array == lookup_value]
@@ -79,7 +80,7 @@ def xlookup(lookup_value, lookup_array, return_array, if_not_found: str = ''):
         # return f'"{lookup_value}" is NULL' if if_not_found == '' else if_not_found
         return f'NULL' if if_not_found == '' else if_not_found
     else:
-        return match_value.tolist()[0]
+        return match_value.tolist()[0]   
 #xlookup_data = xlookup('1625976231738529792', df_sql['bill_id'],df_sql['uuid'])
 df_combine['uuid'] = df_combine['bill_id'].apply(
     xlookup, args=(df_sql['bill_id'], df_sql['uuid']))
@@ -91,7 +92,7 @@ df_combine['name'] = df_combine['bill_id'].apply(
     xlookup, args=(df_sql['bill_id'], df_sql['name']))
 df_combine['idnumber'] = df_combine['bill_id'].apply(
     xlookup, args=(df_sql['bill_id'], df_sql['idnumber']))
-print('Mapping with XLOOKUP method...')
+print('XLOOKUP method... is DONE!')
 
 # delete some u don't need
 del df_combine['bill_id']
