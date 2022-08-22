@@ -30,17 +30,13 @@ df_combine = pd.concat(df, axis=0)
 
 df_combine1 = df_combine.loc[:, ['เบอร์โทรศัพท์']]
 df_combine2 = df_combine1.loc[:, ['ECA', 'AGREEMENT NO',
-                                'วันที่ติดตามล่าสุด', 'Status Code', 'ผลการติดตาม',
-                                'รายละเอียดการติดตาม', 'รายชื่อพนักงานผู้ติดตาม', 'Portflorio']].astype('string')
+                                'Call date', 'Contact disposition', 'Call out come',
+                                'Description', 'Call from', 'Portflorio']].astype('string')
 reCol = {
     'ECA': 'subject',
     'AGREEMENT': 'account number',
-    'เบอร์โทรศัพท์': 'call date',
+    'เบอร์โทรศัพท์': 'phone number',
     'วันที่ติดตามล่าสุด': 'contact dispoisition',
-    'Status Code': 'call out come',
-    'ผลการติดตาม': 'description',
-    'รายละเอียดการติดตาม': 'Call from',
-    'รายชื่อพนักงานผู้ติดตาม': 'Call from',
     'Portflorio': 'portfolio'
 }
 

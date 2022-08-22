@@ -124,7 +124,7 @@ sql_cmd_DP = """
                     FROM [stage].[phonecall] phoneCall
                     where phoneCall.phonenumber = phone.alternis_number and phoneCall.regardingobjectid = a.alternis_accountid
                     ORDER BY phoneCall.createdon DESC)
-            WHERE a.alternis_portfolioidname IN ('GRAB R2 1 TH','KKP1 TH','BMW1 TH','SME2 TH','TMB1 TH','TMB2 TH')
+            WHERE a.alternis_portfolioidname IN ('GRAB R2 1 TH','KKP1 TH','BMW1 TH','SME1 TH','SME2 TH','TMB1 TH','TMB2 TH')
             ORDER BY a.alternis_portfolioidname, phone_call.createdon desc
             """
 df_sql_DP = pd.read_sql(sql_cmd_DP, connect_database)
