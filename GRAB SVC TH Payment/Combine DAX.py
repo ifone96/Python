@@ -56,7 +56,7 @@ df_sql = pd.read_sql(sql_cmd, connect_database)
 
 
 todaysdate_filename = str(
-    datetime.datetime.now().strftime("Combine DAX %H%M %y%m%d")) + '.xlsx'
+    datetime.datetime.now().strftime("Combine DAX %H%M %Y%m%d")) + '.xlsx'
 writer = pd.ExcelWriter(todaysdate_filename)
 print("\n",df_combine, f"{todaysdate_filename }""\n")
 
@@ -89,30 +89,30 @@ worksheet.set_column('M:M', 26, format3)
 worksheet2.set_column('A:A', 25)
 
 #Formula 
-worksheet.write_dynamic_array_formula('E2:E100', '=B2:B100&""')
-worksheet.write_dynamic_array_formula('F2:F100', '=SUBSTITUTE(D2:D100,RIGHT(D2:D100,4),"")&""')
-worksheet.write_dynamic_array_formula('G2:G100', '=_xlfn.IFNA(_xlfn.XLOOKUP(F2:F100,SQL_MAP!$A:A,SQL_MAP!$A:$A),_xlfn.XLOOKUP(E2:E100,SQL_MAP!$A:$A,SQL_MAP!$A:$A))')
-worksheet.write_dynamic_array_formula('H2:H100', '=G2:G100')
-worksheet.write_dynamic_array_formula('J2:J100', '=C2:C100*1')
-worksheet.write_dynamic_array_formula('K2:K100', '=C2:C100*1')
-worksheet.write_dynamic_array_formula('L2:L100', '=_xlfn.DATE(_xlfn.RIGHT(A2:A100,4),_xlfn.MID(A2:A100,4,2),_xlfn.LEFT(A2:A100,2))')
+worksheet.write_dynamic_array_formula('E2:E500', '=B2:B500&""')
+worksheet.write_dynamic_array_formula('F2:F500', '=SUBSTITUTE(D2:D500,RIGHT(D2:D500,4),"")&""')
+worksheet.write_dynamic_array_formula('G2:G500', '=_xlfn.IFNA(_xlfn.XLOOKUP(F2:F500,SQL_MAP!$A:A,SQL_MAP!$A:$A),_xlfn.XLOOKUP(E2:E500,SQL_MAP!$A:$A,SQL_MAP!$A:$A))')
+worksheet.write_dynamic_array_formula('H2:H500', '=G2:G500')
+worksheet.write_dynamic_array_formula('J2:J500', '=C2:C500*1')
+worksheet.write_dynamic_array_formula('K2:K500', '=C2:C500*1')
+worksheet.write_dynamic_array_formula('L2:L500', '=_xlfn.DATE(_xlfn.RIGHT(A2:A500,4),_xlfn.MID(A2:A500,4,2),_xlfn.LEFT(A2:A500,2))')
 
 
 
 # Close the Pandas Excel writer and output the Excel file.
 writer.save()
 
-## Move file on os base name and path
-#src_folder = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\"
-#dst_folder = r"C:\\Users\\wasin.k\\Desktop\\Python\\Run PD\\SMN\\From TL\\Uploaded\\"
-## move file whose name end with string 'xls'
-#pattern = src_folder + "\*.xls*"
-#for files in glob.iglob(pattern, recursive=True):
-#    # extract file name form file path
-#    file_name = os.path.basename(files)
-#    #todayy = str(datetime.datetime.now().strftime("(Uploaded) %H%M "))
-#    shutil.move(files, dst_folder + file_name)
-#    print('Moved:', files)
+# Move file on os base name and path
+src_folder = r"Z:\\MIS\\Fone Wasin\\Python\\GRAB SVC TH Payment\\DAX\\"
+dst_folder = r"Z:\\MIS\\Fone Wasin\\Python\\GRAB SVC TH Payment\\DAX\\Uploaded\\"
+# move file whose name end with string 'xls'
+pattern = src_folder + "\*.xls*"
+for files in glob.iglob(pattern, recursive=True):
+    # extract file name form file path
+    file_name = os.path.basename(files)
+    #todayy = str(datetime.datetime.now().strftime("(Uploaded) %H%M "))
+    shutil.move(files, dst_folder + file_name)
+    print('Moved:', files)
 
 # Open file or folder on OS
 path_url = r"Z:\\MIS\\Fone Wasin\\Python\\GRAB SVC TH Payment\\"
