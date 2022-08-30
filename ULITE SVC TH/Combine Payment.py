@@ -4,6 +4,7 @@ import glob
 import os
 import shutil
 from tkinter import HIDDEN
+from unittest import skip
 import uuid
 from doctest import DocFileTest
 from email.utils import format_datetime
@@ -20,49 +21,77 @@ df = []
 for file in os.listdir(data_file_folder):
     if file.endswith('.xlsx'):
         print('Loading file {0}...'.format(file))
-        df.append(pd.read_excel(os.path.join(data_file_folder, file), sheet_name='payment_reconcile_report'))
-        
+        df.append(pd.read_excel(os.path.join(data_file_folder, file), sheet_name='payment_reconcile_report', header=11))
+      
 # Len(df)
 df_combine = pd.concat(df, axis=0)
-df_combine = df_combine[11:]
-#df_combine2 = df_combine.iloc[:,[0,1,7,11]]
-#df_combine = df_combine[['SO No.','วันที่ชำระ','ผู้ซื้อ','ยอดรับชำระรวม(บาท)']]
+reCol = {
+    'ผู้ซื้อ': 'Account Number',
+    'SO No.': 'Invoice/Card Number',
+    'ยอดรับชำระรวม(บาท)' : 'Amount',
+    'วันที่ชำระ': 'Effective Date' 
+}
+# call rename () method
+df_combine.rename(columns=reCol, inplace=True)
+df_combine = df_combine[['Account Number','Invoice/Card Number','Amount','Effective Date']]
+df_combine = df_combine.assign(**{ 
+                                'Account Number+': '',	
+                                'Card Number+':'',	
+                                'Description+':'',	 
+                                'Amount+':'', 	 
+                                'Amount Amount in LCY+':'', 
+                                'Effective Transaction Date+': '',
+                                'Transaction Date Posting+': '=TODAY()',
+                                'Payment Channel+': '',
+                                'Product Type+': '',
+                                'Statement Reference+': ''
+                                })
 
+df_combine.dropna(inplace=True)
 
 todaysdate_filename = str(
     datetime.datetime.now().strftime("Combine Ulite %H%M %Y%m%d")) + '.xlsx'
 writer = pd.ExcelWriter(todaysdate_filename)
-print("\n",df_combine, f"{todaysdate_filename }""\n")
 
 df_combine.to_excel(writer, index=False, sheet_name= 'Combine_Ulite')
-
 # Get the xlsxwriter workbook and worksheet objects.
 workbook  = writer.book
 worksheet = writer.sheets['Combine_Ulite']
 
 
 # Add some cell formats.
+format = workbook.add_format({'num_format': '###############'})
 format1 = workbook.add_format({'num_format': '@'})
 format2 = workbook.add_format({'num_format': '0.00'})
 format3 = workbook.add_format({'num_format': 'mm/dd/yyyy'})
 
 # Set the column width and format.
-worksheet.set_column('A:A', 12)
-worksheet.set_column('B:B', 12)
-worksheet.set_column('C:C', 15)
-worksheet.set_column('D:D', 15)
-worksheet.set_column('E:E', 15)
-worksheet.set_column('F:F', 10)
-worksheet.set_column('G:G', 18)
-worksheet.set_column('H:H', 18)
-worksheet.set_column('I:I', 14)
-worksheet.set_column('J:J', 12)
-worksheet.set_column('K:K', 26)
-worksheet.set_column('L:L', 28)
-worksheet.set_column('M:M', 26)
+worksheet.set_column('A:A', 30, format)
+worksheet.set_column('B:B', 20, format)
+worksheet.set_column('C:C', 15, format2)
+worksheet.set_column('D:D', 20)
+worksheet.set_column('E:E', 30, format)
+worksheet.set_column('F:F', 20, format)
+worksheet.set_column('G:G', 15)
+worksheet.set_column('H:H', 15, format2)
+worksheet.set_column('I:I', 25, format2)
+worksheet.set_column('J:J', 28, format3)
+worksheet.set_column('K:K', 28, format3)
+worksheet.set_column('L:L', 28, format3)
+worksheet.set_column('M:M', 25)
+worksheet.set_column('N:N', 25)
+worksheet.set_column('O:O', 25)
+worksheet.set_column('P:P', 25)
+worksheet.set_column('Q:Q', 25)
 
 #Formula 
-#worksheet.write_dynamic_array_formula('E2:E500', '=B2:B500&""')
+worksheet.write_dynamic_array_formula('E2:E1000', '=A2:A1000')
+worksheet.write_dynamic_array_formula('F2:F1000', '=B2:B1000')
+worksheet.write_dynamic_array_formula('H2:H1000', '=C2:C1000*1')
+worksheet.write_dynamic_array_formula('I2:I1000', '=C2:C1000*1')
+worksheet.write_dynamic_array_formula('J2:J1000', '=_xlfn.DATE(_xlfn.RIGHT(D2:D1000,4),_xlfn.MID(D2:D1000,4,2),_xlfn.LEFT(D2:D1000,2))')
+
+
 
 # Close the Pandas Excel writer and output the Excel file.
 writer.save()

@@ -17,25 +17,26 @@ from matplotlib.pyplot import axis
 
 # server = 'localhost\sqlexpress' # for a named instance
 # server = 'myserver,port' # to specify an alternate port
-server = 'collectiusdwhph.database.windows.net'
-database = 'dwh_th_2022'
-username = 'atiwat'
-password = '2a#$dfERat^%'
+server = 'collectius-th.crm5.dynamics.com,5558'
+database = 'orgbf56918d'
+username = 'wasin.k@collectius.com'
+password = 'Office365%'
 connect_database = pyodbc.connect(
     'DRIVER={ODBC Driver 17 for SQL Server};SERVER='+server+';DATABASE='+database+';UID='+username+';PWD=' + password)
 sql_cmd = """
-    SELECT DISTINCT
-    b.alternis_invoicenumber as bill_id, 
-    b.alternis_accountid as uuid,
-    REPLACE(a.alternis_number,'*','') AS phone,
-    a.alternis_phonetypename as type,
-    a.alternis_contactidname as name,
-    b.alternis_idnumber as idnumber
-    FROM stage.alternis_phone a
-    JOIN stage.alternis_account b
-    ON a.alternis_contactid = b.alternis_contactid
-    WHERE alternis_portfolioidname IN ('SEAMONEY SPL SVC TH','SEAMONEY BCL SVC TH')
-    """
+        SELECT DISTINCT
+        b.alternis_invoicenumber,
+        b.alternis_accountid as uuid,
+        REPLACE(a.alternis_number,'*','') AS phone,
+        a.alternis_phonetypename,
+        a.alternis_contactidname,
+        b.alternis_idnumber 
+        FROM alternis_phone a
+        JOIN alternis_account b
+        ON a.alternis_contactid = b.alternis_contactid
+        WHERE alternis_portfolioidname IN ('SEAMONEY SPL SVC TH','SEAMONEY BCL SVC TH')
+        ORDER BY a.alternis_contactidname
+            """
 df_sql = pd.read_sql(sql_cmd, connect_database)
 
 ## Set name file with date/times
